@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CTF Agent Mission Control — ศูนย์ควบคุม AI สำหรับการแข่งขัน CTF">
+  <meta name="theme-color" content="#080d16">
+  <title>CTF Agent — Mission Control</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">ข้ามไปยังเนื้อหาหลัก</a>
+
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 1c5-3 8 3 14 0v10c-6 3-9-3-14 0"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 3v4M8 12h.01M16 12h.01M8 16h8"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a3 3 0 0 1 3-3h5v18H7a3 3 0 0 0-3 3V5Zm16 0a3 3 0 0 0-3-3h-5v18h5a3 3 0 0 1 3 3V5Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 9 19.37a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.63 15 1.7 1.7 0 0 0 3.08 14H3v-4h.08A1.7 1.7 0 0 0 4.63 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.63a1.7 1.7 0 0 0 1-1.55V3h4v.08A1.7 1.7 0 0 0 15 4.63a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.37 9 1.7 1.7 0 0 0 20.92 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M12 9v3M6 15v-3h12v3"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v5c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 11v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v4m0 3h.01"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l4 4v16H6V2Z"/><path d="M14 2v5h5"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3m6 0h4"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10m-7 7h4"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M18 12a6 6 0 0 0-10.5-4M6 12a6 6 0 0 0 10.5 4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.1 2.3c-.9.4-.9 1.1-.9 1.7m0 3h.01"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14"/></symbol>
+  </svg>
+
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="topbar__brand-area">
+        <button class="icon-button mobile-menu" id="menuButton" type="button" aria-label="เปิดเมนู" aria-expanded="false">
+          <svg><use href="#i-menu"></use></svg>
+        </button>
+        <a class="brand" href="#/overview" aria-label="CTF Agent หน้าหลัก">
+          <span class="brand__mark" aria-hidden="true"><span></span></span>
+          <span class="brand__copy"><strong>CTF AGENT</strong><small>MISSION CONTROL</small></span>
+        </a>
+        <span class="event-divider" aria-hidden="true"></span>
+        <div class="event-identity">
+          <span class="eyebrow">ACTIVE EVENT</span>
+          <strong id="eventName">Cyber Top Talent 2026</strong>
+        </div>
+      </div>
+
+      <div class="topbar__telemetry" aria-label="สถานะการแข่งขัน">
+        <div class="telemetry-item" title="เวลาการแข่งขันคงเหลือ">
+          <svg><use href="#i-clock"></use></svg>
+          <span><small>เหลือเวลา</small><strong class="mono" id="eventCountdown">--:--:--</strong></span>
+        </div>
+        <button class="telemetry-item telemetry-button" id="budgetQuickButton" type="button" title="เปิดหน้า Budget & Models">
+          <svg><use href="#i-coins"></use></svg>
+          <span><small>Token budget</small><strong id="topTokenText">—</strong></span>
+        </button>
+        <button class="telemetry-item telemetry-button" id="scopeQuickButton" type="button" title="เปิดหน้า Security & Audit">
+          <span class="live-dot is-safe" id="networkDot"></span>
+          <span><small>Network scope</small><strong id="topScopeText">Locked</strong></span>
+        </button>
+      </div>
+
+      <div class="topbar__actions">
+        <button class="icon-button" id="themeButton" type="button" aria-label="สลับธีม" title="สลับธีม">
+          <svg><use href="#i-sun"></use></svg>
+        </button>
+        <button class="icon-button notification-button" id="notificationButton" type="button" aria-label="การแจ้งเตือน" title="การแจ้งเตือน">
+          <svg><use href="#i-bell"></use></svg><span class="notification-dot" id="notificationDot" hidden></span>
+        </button>
+        <button class="button button--danger-subtle pause-all-button" id="pauseAllButton" type="button">
+          <svg><use href="#i-pause"></use></svg><span>หยุดทุก Agent</span>
+        </button>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar" aria-label="เมนูหลัก">
+      <nav class="primary-nav">
+        <a class="nav-item is-active" href="#/overview" data-route="overview">
+          <svg><use href="#i-grid"></use></svg><span>ภาพรวม</span>
+        </a>
+        <a class="nav-item" href="#/challenges" data-route="challenges">
+          <svg><use href="#i-flag"></use></svg><span>Challenges</span><span class="nav-count" id="challengeNavCount">0</span>
+        </a>
+        <a class="nav-item" href="#/agents" data-route="agents">
+          <svg><use href="#i-bot"></use></svg><span>Agents</span><span class="nav-presence" id="agentPresence" hidden></span>
+        </a>
+        <a class="nav-item" href="#/budget" data-route="budget">
+          <svg><use href="#i-chart"></use></svg><span>Budget &amp; Models</span>
+        </a>
+        <a class="nav-item" href="#/knowledge" data-route="knowledge">
+          <svg><use href="#i-book"></use></svg><span>Knowledge</span>
+        </a>
+        <a class="nav-item" href="#/security" data-route="security">
+          <svg><use href="#i-shield"></use></svg><span>Security &amp; Audit</span><span class="nav-warning" id="securityNavWarning" hidden>!</span>
+        </a>
+        <a class="nav-item" href="#/settings" data-route="settings">
+          <svg><use href="#i-settings"></use></svg><span>ตั้งค่า</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="system-health">
+          <span class="system-health__dot" id="systemHealthDot"></span>
+          <span><small>ORCHESTRATOR</small><strong id="systemHealthText">กำลังเชื่อมต่อ…</strong></span>
+        </div>
+        <button class="shortcut-hint" id="shortcutButton" type="button"><kbd>?</kbd><span>คีย์ลัด</span></button>
+      </div>
+    </aside>
+
+    <button class="drawer-scrim" id="drawerScrim" type="button" aria-label="ปิดเมนู" tabindex="-1"></button>
+
+    <main class="main-content" id="mainContent" tabindex="-1">
+      <div class="offline-banner" id="offlineBanner" role="status" hidden>
+        <span class="status-dot status-dot--amber"></span>
+        <strong>OFFLINE DEMO</strong>
+        <span>เชื่อมต่อ API ไม่ได้ — ข้อมูลที่เห็นเป็นข้อมูลตัวอย่างและการเปลี่ยนแปลงจะไม่ถูกบันทึก</span>
+        <button class="text-button" id="retryApiButton" type="button"><svg><use href="#i-refresh"></use></svg>ลองใหม่</button>
+      </div>
+
+      <section class="page is-active" id="page-overview" data-page="overview" aria-labelledby="overviewTitle">
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">EVENT OVERVIEW</p>
+            <h1 id="overviewTitle">ศูนย์บัญชาการ</h1>
+            <p class="page-subtitle">ติดตามความคืบหน้า งบ token และสิ่งที่ต้องตัดสินใจในมุมมองเดียว</p>
+          </div>
+          <div class="page-actions">
+            <button class="button button--secondary" id="refreshOverviewButton" type="button"><svg><use href="#i-refresh"></use></svg>รีเฟรช</button>
+            <button class="button button--primary" data-open-add type="button"><svg><use href="#i-plus"></use></svg>เพิ่ม Challenge</button>
+          </div>
+        </div>
+
+        <div class="metric-grid" id="overviewMetrics" aria-live="polite"></div>
+
+        <div class="dashboard-grid">
+          <section class="panel panel--span-2" aria-labelledby="activeChallengesTitle">
+            <div class="panel__header">
+              <div><p class="eyebrow">LIVE QUEUE</p><h2 id="activeChallengesTitle">Challenges ที่กำลังทำ</h2></div>
+              <a class="inline-link" href="#/challenges">ดูทั้งหมด <svg><use href="#i-chevron"></use></svg></a>
+            </div>
+            <div id="activeChallenges" class="challenge-list"></div>
+          </section>
+
+          <section class="panel attention-panel" aria-labelledby="attentionTitle">
+            <div class="panel__header">
+              <div><p class="eyebrow eyebrow--amber">ACTION REQUIRED</p><h2 id="attentionTitle">ต้องตรวจสอบ</h2></div>
+              <span class="count-badge" id="attentionCount">0</span>
+            </div>
+            <div id="attentionList" class="attention-list"></div>
+          </section>
+
+          <section class="panel panel--span-2" aria-labelledby="activityTitle">
+            <div class="panel__header">
+              <div><p class="eyebrow">RECENT PROGRESS</p><h2 id="activityTitle">ความคืบหน้าล่าสุด</h2></div>
+              <button class="icon-button small" id="activityRefreshButton" type="button" aria-label="รีเฟรชกิจกรรม"><svg><use href="#i-refresh"></use></svg></button>
+            </div>
+            <div id="recentActivity" class="timeline timeline--compact"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="budgetForecastTitle">
+            <div class="panel__header">
+              <div><p class="eyebrow">TOKEN CONTROL</p><h2 id="budgetForecastTitle">ภาพรวมงบ</h2></div>
+              <a class="inline-link" href="#/budget">รายละเอียด <svg><use href="#i-chevron"></use></svg></a>
+            </div>
+            <div id="budgetForecast"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-challenges" data-page="challenges" aria-labelledby="challengesTitle" hidden>
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">CHALLENGE OPERATIONS</p>
+            <h1 id="challengesTitle">Challenges</h1>
+            <p class="page-subtitle">จัดลำดับความสำคัญและเข้าถึงหลักฐานของทุกโจทย์</p>
+          </div>
+          <button class="button button--primary" data-open-add type="button"><svg><use href="#i-plus"></use></svg>เพิ่ม Challenge</button>
+        </div>
+
+        <div class="filter-bar" role="search">
+          <label class="search-field">
+            <svg><use href="#i-search"></use></svg>
+            <span class="sr-only">ค้นหา Challenge</span>
+            <input id="challengeSearch" type="search" placeholder="ค้นหาชื่อ, ID, tag…" autocomplete="off">
+            <kbd>/</kbd>
+          </label>
+          <label class="select-field"><span class="sr-only">กรองหมวดหมู่</span><select id="categoryFilter"><option value="all">ทุกหมวดหมู่</option></select></label>
+          <label class="select-field"><span class="sr-only">กรองสถานะ</span><select id="statusFilter"><option value="all">ทุกสถานะ</option></select></label>
+          <button class="button button--ghost filter-reset" id="resetFiltersButton" type="button"><svg><use href="#i-x"></use></svg>ล้างตัวกรอง</button>
+          <span class="filter-result" id="filterResult">0 รายการ</span>
+        </div>
+
+        <div class="table-shell">
+          <table class="data-table challenge-table">
+            <thead><tr><th>Challenge</th><th>หมวดหมู่</th><th>สถานะ</th><th>Agent</th><th>Token</th><th>คะแนน</th><th><span class="sr-only">เปิด</span></th></tr></thead>
+            <tbody id="challengeTableBody"></tbody>
+          </table>
+          <div class="mobile-card-list" id="challengeMobileList"></div>
+          <div class="empty-state" id="challengeEmpty" hidden></div>
+        </div>
+      </section>
+
+      <section class="page challenge-cockpit" id="page-challenge" data-page="challenge" aria-labelledby="cockpitTitle" hidden>
+        <button class="back-link" id="challengeBackButton" type="button"><span aria-hidden="true">←</span> กลับไป Challenges</button>
+        <div id="challengeCockpit"></div>
+      </section>
+
+      <section class="page" id="page-agents" data-page="agents" aria-labelledby="agentsTitle" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">AGENT FLEET</p><h1 id="agentsTitle">Agents</h1><p class="page-subtitle">ดูภารกิจ ผลลัพธ์ และต้นทุนของ agent แต่ละตัว</p></div>
+          <button class="button button--secondary" id="refreshAgentsButton" type="button"><svg><use href="#i-refresh"></use></svg>รีเฟรช</button>
+        </div>
+        <div class="agent-summary" id="agentSummary"></div>
+        <div class="agent-grid" id="agentGrid"></div>
+      </section>
+
+      <section class="page" id="page-budget" data-page="budget" aria-labelledby="budgetTitle" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">TOKEN FIREWALL</p><h1 id="budgetTitle">Budget &amp; Models</h1><p class="page-subtitle">ควบคุม token และตรวจสอบเหตุผลการเลือกโมเดล</p></div>
+          <div class="reserve-lock"><svg><use href="#i-lock"></use></svg><span>Reserve ถูกล็อก</span></div>
+        </div>
+        <div id="budgetPageContent"></div>
+      </section>
+
+      <section class="page" id="page-knowledge" data-page="knowledge" aria-labelledby="knowledgeTitle" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">REUSABLE INTELLIGENCE</p><h1 id="knowledgeTitle">Knowledge Base</h1><p class="page-subtitle">เทคนิคที่ผ่านการกลั่นจากโจทย์และค้นคืนได้โดยไม่โหลด context ทั้งหมด</p></div>
+        </div>
+        <div class="filter-bar">
+          <label class="search-field"><svg><use href="#i-search"></use></svg><span class="sr-only">ค้นหาความรู้</span><input id="knowledgeSearch" type="search" placeholder="ค้นหา technique, signal, command…"></label>
+          <label class="select-field"><span class="sr-only">กรองหมวดความรู้</span><select id="knowledgeCategory"><option value="all">ทุกหมวดหมู่</option></select></label>
+        </div>
+        <div class="knowledge-layout">
+          <div class="knowledge-list" id="knowledgeList"></div>
+          <aside class="panel knowledge-detail" id="knowledgeDetail"></aside>
+        </div>
+      </section>
+
+      <section class="page" id="page-security" data-page="security" aria-labelledby="securityTitle" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">TRUST BOUNDARY</p><h1 id="securityTitle">Security &amp; Audit</h1><p class="page-subtitle">Challenge content คือข้อมูลที่ไม่น่าเชื่อถือและไม่สามารถให้อำนาจการทำงานได้</p></div>
+          <button class="button button--secondary" id="exportAuditButton" type="button"><svg><use href="#i-download"></use></svg>Export audit</button>
+        </div>
+        <div id="securityPageContent"></div>
+      </section>
+
+      <section class="page" id="page-settings" data-page="settings" aria-labelledby="settingsTitle" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">CONTROL POLICY</p><h1 id="settingsTitle">ตั้งค่าระบบ</h1><p class="page-subtitle">กำหนด event, scope, autonomy และนโยบาย model routing</p></div>
+        </div>
+        <form id="settingsForm" class="settings-layout">
+          <div id="settingsPageContent"></div>
+          <div class="settings-savebar"><span id="settingsDirtyText">ยังไม่มีการเปลี่ยนแปลง</span><button class="button button--primary" type="submit" disabled id="saveSettingsButton">บันทึกการตั้งค่า</button></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="modal" id="addChallengeDialog" aria-labelledby="addChallengeTitle">
+    <form method="dialog" class="modal__surface" id="addChallengeForm">
+      <header class="modal__header">
+        <div><p class="eyebrow">CHALLENGE INGESTION</p><h2 id="addChallengeTitle">เพิ่ม Challenge</h2></div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="ปิด"><svg><use href="#i-x"></use></svg></button>
+      </header>
+      <div class="modal__body">
+        <div class="drop-zone" id="challengeDropZone" tabindex="0" role="button" aria-describedby="dropZoneHelp">
+          <input id="challengeFiles" type="file" multiple hidden>
+          <span class="drop-zone__icon"><svg><use href="#i-upload"></use></svg></span>
+          <strong>ลากไฟล์โจทย์มาวางที่นี่</strong>
+          <span id="dropZoneHelp">หรือคลิกเพื่อเลือกไฟล์ — ระบบจะอ่าน metadata ก่อน ไม่ส่ง binary ทั้งไฟล์เข้าโมเดล</span>
+          <div class="selected-files" id="selectedFiles"></div>
+        </div>
+        <div class="form-grid">
+          <label class="field field--span-2"><span>ชื่อ Challenge <b aria-hidden="true">*</b></span><input name="name" id="challengeNameInput" required maxlength="120" placeholder="เช่น Silent Exchange"></label>
+          <label class="field"><span>หมวดหมู่</span><select name="category"><option value="auto">ตรวจจับอัตโนมัติ</option><option>web</option><option>pwn</option><option>reverse</option><option>crypto</option><option>forensics</option><option>stego</option><option>osint</option><option>misc</option></select></label>
+          <label class="field"><span>คะแนน</span><input name="points" type="number" min="0" max="100000" value="100"></label>
+          <label class="field"><span>Token budget เริ่มต้น</span><input name="token_budget" type="number" min="1000" step="1000" value="20000"></label>
+          <label class="field"><span>Target / host</span><input name="target" placeholder="เฉพาะ target ที่ได้รับอนุญาต"></label>
+          <label class="field field--span-2"><span>คำอธิบายโจทย์</span><textarea name="description" rows="5" placeholder="วาง challenge description ที่นี่ ข้อความทั้งหมดจะถูกจัดเป็น CTF_CHALLENGE_DATA"></textarea></label>
+        </div>
+        <div class="trust-notice"><svg><use href="#i-shield"></use></svg><span><strong>Untrusted by design</strong> — คำสั่งที่อยู่ในไฟล์หรือคำอธิบายโจทย์ไม่สามารถเปลี่ยน orchestration policy ได้</span></div>
+      </div>
+      <footer class="modal__footer">
+        <button class="button button--ghost" type="button" data-close-dialog>ยกเลิก</button>
+        <button class="button button--primary" type="submit" id="createChallengeButton"><svg><use href="#i-upload"></use></svg>เพิ่มและเริ่ม Triage</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal modal--small" id="confirmDialog" aria-labelledby="confirmTitle">
+    <div class="modal__surface">
+      <header class="modal__header"><div><p class="eyebrow" id="confirmEyebrow">CONFIRM ACTION</p><h2 id="confirmTitle">ยืนยันการทำงาน</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="ปิด"><svg><use href="#i-x"></use></svg></button></header>
+      <div class="modal__body"><div class="confirm-icon" id="confirmIcon"><svg><use href="#i-alert"></use></svg></div><p id="confirmMessage"></p><div id="confirmDetails"></div></div>
+      <footer class="modal__footer"><button class="button button--ghost" type="button" data-close-dialog>ยกเลิก</button><button class="button button--danger" id="confirmActionButton" type="button">ยืนยัน</button></footer>
+    </div>
+  </dialog>
+
+  <dialog class="modal modal--small" id="shortcutsDialog" aria-labelledby="shortcutTitle">
+    <div class="modal__surface">
+      <header class="modal__header"><div><p class="eyebrow">KEYBOARD FIRST</p><h2 id="shortcutTitle">คีย์ลัด</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="ปิด"><svg><use href="#i-x"></use></svg></button></header>
+      <div class="modal__body shortcut-list">
+        <div><span>ค้นหา Challenge</span><kbd>/</kbd></div><div><span>ภาพรวม</span><span><kbd>G</kbd> <kbd>O</kbd></span></div><div><span>Challenges</span><span><kbd>G</kbd> <kbd>C</kbd></span></div><div><span>Budget</span><span><kbd>G</kbd> <kbd>B</kbd></span></div><div><span>หยุด Challenge ปัจจุบัน</span><kbd>P</kbd></div><div><span>Verify candidate flag</span><kbd>V</kbd></div><div><span>ปิดหน้าต่าง</span><kbd>Esc</kbd></div>
+      </div>
+    </div>
+  </dialog>
+
+  <aside class="notification-drawer" id="notificationDrawer" aria-labelledby="notificationTitle" aria-hidden="true">
+    <header><div><p class="eyebrow">ALERT CENTER</p><h2 id="notificationTitle">การแจ้งเตือน</h2></div><button class="icon-button" id="closeNotifications" type="button" aria-label="ปิด"><svg><use href="#i-x"></use></svg></button></header>
+    <div id="notificationList" class="notification-list"></div>
+  </aside>
+
+  <div class="toast-region" id="toastRegion" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <template id="loadingTemplate"><div class="skeleton-stack" aria-label="กำลังโหลด"><span></span><span></span><span></span></div></template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

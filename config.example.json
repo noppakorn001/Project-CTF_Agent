@@ -1,0 +1,19 @@
+{
+  "global_token_budget": 500000,
+  "per_challenge_token_budget": 50000,
+  "reserve_percent": 20,
+  "max_iterations": 12,
+  "max_large_model_calls": 2,
+  "max_tool_output_bytes": 64000,
+  "max_context_tokens": 12000,
+  "max_model_output_tokens": 1200,
+  "provider": "mock",
+  "network_enabled": false,
+  "tier_models": {
+    "tool": "deterministic",
+    "luna": "gpt-5.6-luna",
+    "terra": "gpt-5.6-terra",
+    "sol": "gpt-5.6-sol"
+  }
+}
+

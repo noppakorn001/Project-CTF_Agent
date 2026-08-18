@@ -1,0 +1,4 @@
+interface:
+  display_name: "CTF Bandit Unix Skills"
+  short_description: "Solve authorized Bandit-style Unix CTFs"
+  default_prompt: "Use $ctf-bandit to triage this authorized Unix/Linux CTF challenge with bounded, reproducible checks."

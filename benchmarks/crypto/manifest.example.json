@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "competitive-crypto-blind-v1",
+  "primary": true,
+  "dataset_status": "not_ready",
+  "expected_tiers": {
+    "intermediate": 10,
+    "advanced": 10,
+    "expert": 10
+  },
+  "source_policy": {
+    "allowed": "official challenge files and explicitly authorized practice endpoints",
+    "forbidden": [
+      "challenge writeups",
+      "solution repositories",
+      "flag databases",
+      "picoCTF entries in the primary set"
+    ],
+    "record_sha256": true,
+    "blind_metadata": true
+  },
+  "challenges": []
+}

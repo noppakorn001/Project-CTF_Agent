@@ -1,0 +1,51 @@
+__pycache__/
+*.so
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.venv/
+venv/
+
+.DS_Store
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+.env
+.env.*
+!.env.example
+config.json
+
+.ctf-agent/
+runtime/
+uploads/
+challenges/**/flag.txt
+
+# Local acceleration artifacts for the bounded NumPy-MT solver.
+ctf_challenges/cryptohack_archive/solvers/.import_numpy_as_mt_scan
+ctf_challenges/cryptohack_archive/solvers/.import_numpy_as_mt_table.bin*
+ctf_challenges/cryptohack_archive/solvers/.test_mt_table.bin
+
+# Challenge workspaces/evidence are local-only. They may contain flags,
+# browser profiles, cookies, PCAP/APK/ZIP payloads, and multi-gigabyte caches.
+ctf_challenges/
+
+# Never version browser state or generated model/browser data, even outside
+# the challenge workspace.
+**/chrome-profile*/
+**/Cookies*
+**/History*
+**/Login Data*
+**/Web Data*
+
+# Local acceleration tables and benchmark artifacts.
+tools/**/.auth_table_bench*
+tools/**/.auth_table_test*
+tools/**/.blake3_auth_table

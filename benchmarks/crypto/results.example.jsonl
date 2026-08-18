@@ -1,0 +1,4 @@
+# One JSON object per line.  Remove this comment before using as JSONL input.
+# Keep tier/author/year/points out of the blind payload; tier is bookkeeping only.
+# Example:
+# {"challenge_id":"crypto_001","tier":"intermediate","status":"FAILED","solve_time_seconds":420,"token_cost":0,"tool_calls":12,"failed_hypotheses":2,"solver_attempts":1,"timed_out":false,"human_intervention":false,"technique":"rsa/shared-prime-gcd","difficulty_estimate":"advanced","confidence_before":0.25,"confidence_after":0.1,"failure_class":"KNOWLEDGE_GAP","hypotheses":["H1: pairwise gcd"],"notes":"No shared factor in supplied moduli."}
