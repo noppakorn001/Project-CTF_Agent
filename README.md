@@ -64,6 +64,121 @@ custom agents ใน repository นี้ใช้เมื่อผู้ใช
 ที่ operator จัดเตรียมและอนุมัติทีละ action ก่อนเสมอ ดู [sandbox execution boundary](docs/SANDBOX_EXECUTION.md)
 ระบบจะไม่ pull image หรือรัน binary ที่ import เข้ามาบน host โดยอัตโนมัติ
 
+## Architecture
+
+CTF-Agent แยกส่วนที่รับข้อมูลโจทย์, ตัดสินใจตาม policy, เรียก model และเก็บหลักฐานออกจากกัน
+เพื่อไม่ให้ UI, model หรือ challenge content ข้ามขอบเขตความปลอดภัยได้เอง ทุก request ที่
+เปลี่ยนสถานะต้องผ่าน `CTFService`; HTTP handler และ JavaScript ไม่เขียน SQLite โดยตรง
+
+```mermaid
+flowchart LR
+    Operator["Operator / browser"] --> UI["Static UI\nindex.html · app.js · styles.css"]
+    UI -->|"same-origin JSON"| HTTP["ctf_agent.http\nloopback HTTP boundary"]
+    CLI["ctf-agent CLI"] --> Service["CTFService\npolicy and lifecycle"]
+    HTTP --> Service
+    Service --> Core["Deterministic core\ntriage · preprocess · router · verifier"]
+    Service --> Provider["ModelProvider\nmock by default · OpenAI opt-in"]
+    Service --> Store[("SQLite\nstate · artifact metadata · cache · audit")]
+    Core --> Store
+    Codex["Codex agents / skills\noptional operator workflow"] -. "read policy and evidence\nnot spawned by web app" .-> Service
+```
+
+### Runtime components
+
+| Layer | Responsibility | Important boundary |
+| --- | --- | --- |
+| `ctf_agent.__main__` | CLI, server lifecycle, health check, playbook/benchmark/archive commands | Validates CLI input before starting a service or approved local helper. |
+| `ctf_agent.http` | Loopback HTTP server, JSON parsing, static assets and API routing | Applies request/static-path limits; never exposes Python tracebacks or local paths to the browser. |
+| `ctf_agent.service.CTFService` | Challenge lifecycle, scope check, budget accounting, audit and action orchestration | The only application layer allowed to mutate challenge state. |
+| `ctf_agent.core` | Hashing, type signals, bounded preprocessing, category classification, injection/burn signals, routing and circuit breakers | Deterministic and network-free; raw artifacts are not copied into prompts. |
+| `ctf_agent.providers` | Structured model-provider abstraction | `mock` is local and default; `openai` needs an explicit setting and environment gate. A provider cannot change scope or spend reserve by itself. |
+| `ctf_agent.storage` | SQLite schema, transactions, cache and audit persistence | Local DB may contain artifacts/candidate flags, so it is ignored by Git. |
+| `ctf_agent.sandbox` | Explicit, bounded Docker inspection interface | Requires an approved action and never automatically executes a supplied binary. |
+| `ctf_agent.recipes`, `deterministic_solvers`, `playbooks` | Reusable offline transforms, evidenced solver routes and read-only discovery | Helpers are deterministic; a suggested playbook is not authority to contact an instance. |
+| `ctf_agent/static/` | No-build dashboard UI | Consumes only the documented same-origin API contract. |
+
+### Request and evidence lifecycle
+
+1. The operator imports a description and optional artifacts. The service records name, size,
+   media type and SHA-256; it does not modify the original source file.
+2. Bounded deterministic preprocessors derive only the signals needed for triage (for example
+   archive member metadata, PNG structure or ELF headers). The classifier assigns a category
+   and confidence before a model is considered.
+3. `CTFService` checks lifecycle state, exact scope authorization, per-challenge budget,
+   global budget and protected reserve. A failed gate becomes an audit event rather than a
+   silently permissive fallback.
+4. The router chooses the cheapest justified tier: local tool first, then Luna, Terra and only
+   evidence-backed Sol escalation. Repeated no-progress paths trip a circuit breaker.
+5. Facts, hypotheses, routing reason, token use and artifacts are persisted with audit records.
+   The browser sees a compact projection; it never receives a database connection.
+6. A candidate flag is accepted as `solved` only after format validation and bounded,
+   artifact-derived replay evidence. The operator submits a verified candidate manually.
+
+### State model
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued
+    queued --> ready: triage
+    queued --> paused: pause
+    ready --> running: solve iteration
+    running --> running: new bounded hypothesis
+    running --> ready: no verified candidate
+    ready --> paused: pause
+    running --> paused: pause
+    paused --> ready: resume
+    queued --> stopped: stop
+    ready --> stopped: stop
+    running --> stopped: stop
+    ready --> solved: verification succeeds
+    running --> solved: verification succeeds
+    ready --> rejected: invalid candidate result
+    rejected --> ready: continue with new evidence
+    solved --> [*]
+    stopped --> [*]
+```
+
+`solved` and `stopped` are terminal states. A rejected candidate is recorded in audit but does
+not turn the challenge into a success. The status values exposed by the API are `queued`,
+`ready`, `running`, `paused`, `stopped`, `solved` and `rejected`.
+
+### Security and trust boundaries
+
+The authority order is deliberate:
+
+1. Operator policy, configured scope and explicit approval.
+2. Application policy and its validated settings.
+3. Deterministic tools and model output.
+4. Challenge descriptions, OCR, artifacts, webpages and all tool output.
+
+The lowest layer is always untrusted. A string in a challenge cannot authorize network access,
+reserve spending, a model change, file-system access or flag submission. Network is disabled by
+default, UI/API bind to loopback, external model calls are opt-in, and the SQLite state directory
+is excluded from version control. See [Threat model](docs/THREAT_MODEL.md) and
+[Sandbox execution](docs/SANDBOX_EXECUTION.md) for the operational details.
+
+### Repository layout
+
+```text
+ctf_agent/                 Application package and static dashboard
+tests/                     Unit, API and deterministic-regression tests
+docs/                      Architecture, threat model, UI and policy documents
+benchmarks/crypto/         Blind crypto benchmark schema and report templates
+knowledge/                 Reusable, non-flag research notes
+tools/                     Bounded local forensic/crypto helper sources
+sandbox/                   Read-only Docker inspection baseline
+.agents/skills/            Codex CTF router/category/writeup workflows
+.codex/                    Codex agent profiles and command guard
+config.example.json        Public settings-payload example
+AGENTS.md                  Repository-wide CTF-only operating policy
+ctf_challenges/            Local-only evidence/workspaces; intentionally ignored by Git
+```
+
+`ctf_challenges/` is intentionally not versioned: it can include event artifacts, candidate
+flags, browser state, cookies, PCAP/APK/ZIP payloads and large generated tables. Keep it local
+or in a separately approved encrypted evidence store. Only reusable, reviewed material belongs
+under `knowledge/`, `tools/` or the Codex skills folders.
+
 ## Workflow ใน UI
 
 1. เปิด Settings และกำหนด global/per-challenge budget; คง `provider=mock` ระหว่าง setup
@@ -77,13 +192,11 @@ custom agents ใน repository นี้ใช้เมื่อผู้ใช
 สถานะที่รองรับคือ `queued`, `ready`, `running`, `paused`, `stopped`, `solved` และ
 `rejected`
 
-ตัวอย่าง regression artifacts และ writeup ที่ตรวจสอบแล้วอยู่ใน
-`ctf_challenges/picoctf2019_crypto/` และ `ctf_challenges/picoctf2024_crypto/`;
-ชุด picoCTF 2019 แยก solver classical/RSA/AES-ABC รายข้อ พร้อมผลปัจจุบันและรายการ
-instance ที่รอ operator launch ใน `ctf_challenges/picoctf2019_crypto/RESULTS.md`;
-บทเรียนที่นำกลับมาใช้ซ้ำจาก picoCTF 2025–2026
-อยู่ใน `.agents/skills/ctf-router/references/picoctf-2025-2026.md` และไม่รวม flag
-ไว้ใน skill reference
+ตัวอย่าง artifact, transcript และ writeup ระหว่างการฝึกเก็บแยกใน local-only
+`ctf_challenges/` เพื่อไม่ปะปนกับ source repository หรือเผยแพร่ candidate flag ออกนอก
+เครื่อง บทเรียนที่นำกลับมาใช้ซ้ำจาก picoCTF 2025–2026 อยู่ใน
+`.agents/skills/ctf-router/references/picoctf-2025-2026.md` และไม่รวม flag ไว้ใน skill
+reference
 
 ### Thailand Cyber Top Talent research set
 
@@ -113,10 +226,8 @@ from ctf_agent.recipes import (
 
 มี Caesar/Atbash, whole-string flag check, SHA-256 แบบอ่านเป็น chunk และ
 `extract_steghide_empty_passphrase()` ที่เรียก `steghide` แบบ argv, ไม่ใช้ shell,
-มี timeout และเขียนเฉพาะ output path ที่ระบุ ตัวอย่างการใช้งานอยู่ที่
-`ctf_challenges/picoctf2023_crypto/{rotation,hidetosee}/solve.py` ไฟล์แต่ละโจทย์ยัง
-เก็บ artifact, hash, assumptions และ writeup แยกกัน เพื่อไม่ให้ evidence ของโจทย์
-หนึ่งปนกับอีกโจทย์หนึ่ง
+มี timeout และเขียนเฉพาะ output path ที่ระบุ Workspace solver ควรเก็บ artifact hash,
+assumptions และ writeup แยกจากกันเสมอ เพื่อไม่ให้ evidence ของโจทย์หนึ่งปนกับอีกโจทย์หนึ่ง
 
 นอกจากนี้มี Vigenere, strict Base64, repeating-key XOR และ exact-root RSA แบบมี
 cap สำหรับยกไปใช้ใน workspace ใหม่ได้ทันที โดย helper เหล่านี้เป็น pure/local
@@ -124,10 +235,8 @@ transform และไม่ทำ network I/O
 
 ### Crypto playbook registry
 
-หลังจากทำ picoCTF crypto หลายปี มี solver แบบ challenge-specific อยู่ใน
-`ctf_challenges/` แล้ว 63 entry points (62 `solve.py` และ 1 `client.py`) แต่ไม่ควรต้อง
-ไล่หาเส้นทางด้วยมือทุกครั้ง จึงมี catalog แบบ read-only ที่
-`ctf_agent/playbooks.py` และดัชนีอธิบายที่ `ctf_challenges/crypto_playbooks/`:
+Catalog แบบ read-only ใน `ctf_agent/playbooks.py` ช่วยจัดอันดับ deterministic route จาก
+evidence ที่พบโดยไม่ต้องเริ่มจากการเดา:
 
 ```bash
 python3 -m ctf_agent playbooks --validate
@@ -137,9 +246,10 @@ python3 -m ctf_agent playbooks rsa/exact-low-exponent
 ```
 
 คำสั่งนี้เพียงค้นหา evidence gate, deterministic first check, verification rule
-และ command template ของ solver ที่มีอยู่ จะไม่ execute solver, เปิด socket หรือ
-ส่ง flag เอง เส้นทางที่ต้องใช้ instance จะถูกทำเครื่องหมาย `network-gated` และยัง
-ต้อง allowlist/อนุมัติ target รายครั้งตาม policy เดิม
+และ command template จะไม่ execute solver, เปิด socket หรือส่ง flag เอง เส้นทางที่ต้อง
+ใช้ instance ถูกทำเครื่องหมาย `network-gated` และยังต้อง allowlist/อนุมัติ target
+รายครั้งตาม policy เดิม. การ validate เส้นทางที่ชี้ไปยัง local evidence pack จะต้องมี
+workspace นั้นอยู่ใน `ctf_challenges/`; evidence pack ดังกล่าวไม่ได้เผยแพร่ใน repository
 
 ### Blind competitive crypto benchmark
 
